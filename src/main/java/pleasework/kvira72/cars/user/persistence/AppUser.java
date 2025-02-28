@@ -4,6 +4,7 @@ package pleasework.kvira72.cars.user.persistence;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pleasework.kvira72.cars.entity.Car;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,6 +26,9 @@ public class AppUser {
     @Column
     private String password;
 
+    @Column
+    private Long balanceInCents;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "user_role",
@@ -32,4 +36,12 @@ public class AppUser {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_car",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "car_id")
+    )
+    private Set<Car> cars = new HashSet<>();
 }

@@ -22,7 +22,7 @@ public class CarsService {
     private final CarRepository carRepository;
     private final EngineService engineService;
 
-    private CarDTO mapCar(Car car) {
+    public CarDTO mapCar(Car car) {
         return new CarDTO(car.getId(), car.getModel(), car.getYear(), car.isDriveable(),
                 new EngineDTO(
                         car.getEngine().getId(),

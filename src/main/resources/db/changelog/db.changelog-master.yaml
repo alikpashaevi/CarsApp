@@ -7,3 +7,7 @@ databaseChangeLog:
         file: db/changelog/scripts/03-CREATE-USERS-AND-ROLES.sql
   - include:
       file: db/changelog/scripts/04-ADD-ROLES.sql
+  - include:
+        file: db/changelog/scripts/05-ADD-PRICING-AND-USER-BALANCE.sql
+  - include:
+      file: db/changelog/scripts/06-CREATE-USER-CARS-TABLE.sql

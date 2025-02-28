@@ -3,6 +3,7 @@ package pleasework.kvira72.cars.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import pleasework.kvira72.cars.user.persistence.AppUser;
 
 @Entity
 @Table(name = "car")
@@ -23,6 +24,9 @@ public class Car {
 
     @Column(name = "is_driveable")
     private boolean driveable;
+
+    @Column(name = "price_in_cents")
+    private long priceInCents;
 
     @ManyToOne
     @JoinColumn(name = "engine_id")
