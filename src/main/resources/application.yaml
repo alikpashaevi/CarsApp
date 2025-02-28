@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${JAVA_COURSE_DB_URL}
+    username: ${JAVA_COURSE_DB_USERNAME}
+    password: ${JAVA_COURSE_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    default-schema: cars
+
+jwt:
+  secret-key: ${JAVA_COURSE_JWT_KEY}
