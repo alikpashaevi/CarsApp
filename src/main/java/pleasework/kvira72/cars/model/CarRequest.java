@@ -3,6 +3,8 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 public class CarRequest {
@@ -15,4 +17,7 @@ public class CarRequest {
     private boolean driveable;
     @Positive
     private Long engineId;
+    @Positive
+    private Long priceInCents;
+    private Set<Long> owner;
 }

@@ -43,6 +43,10 @@ public class UserService {
     public AppUser getUser(String username) {
         return repository.findByUsername(username).orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
     }
+
+    public AppUser getUserById(Long id) {
+        return repository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
+    }
 //
 //    public Set<CarDTO> getUserCars(Long username) {
 //        Set<Car> cars = repository.findCarsByUsername(username);
@@ -50,11 +54,14 @@ public class UserService {
 //    }
 
     private CarDTO convertToCarDTO(Car car) {
+        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(null);
         return new CarDTO(
                 car.getId(),
                 car.getModel(),
                 car.getYear(),
                 car.isDriveable(),
+                ownerUsername,
+                car.getPriceInCents(),
                 new EngineDTO(car.getEngine().getId(), car.getEngine().getHorsePower(), car.getEngine().getCapacity())
         );
     }

@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "car")
 @SequenceGenerator(name = "car_seq_gen", sequenceName = "car_seq", allocationSize = 1)
@@ -31,5 +34,8 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "engine_id")
     private Engine engine;
+
+    @ManyToMany(mappedBy = "cars")
+    private Set<AppUser> owners = new HashSet<>();
 
 }

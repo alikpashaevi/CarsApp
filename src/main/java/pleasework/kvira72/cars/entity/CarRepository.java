@@ -9,12 +9,14 @@ import pleasework.kvira72.cars.model.CarDTO;
 public interface CarRepository  extends JpaRepository<Car, Long> {
 
     @Query(
-            "SELECT NEW pleasework.kvira72.cars.model.CarDTO" +
-                    "(c.id, c.model, c.year, c.driveable, " +
-                    "new pleasework.kvira72.cars.model.EngineDTO" +
-                    "(e.id, e.horsePower, e.capacity)) " +
-                    "FROM Car c JOIN c.engine e"
+            "SELECT NEW pleasework.kvira72.cars.model.CarDTO " +
+                    "(c.id, c.model, c.year, c.driveable, o.username, c.priceInCents," +
+                    "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity)) " +
+                    "FROM Car c " +
+                    "JOIN c.engine e " +
+                    "LEFT JOIN c.owners o" // Explicitly joining owners
     )
     Page<CarDTO> findCars(Pageable pageable);
+
 
 }

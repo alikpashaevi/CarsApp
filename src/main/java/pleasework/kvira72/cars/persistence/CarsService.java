@@ -10,9 +10,10 @@ import pleasework.kvira72.cars.model.CarRequest;
 import pleasework.kvira72.cars.model.EngineDTO;
 import pleasework.kvira72.cars.entity.Car;
 import pleasework.kvira72.cars.entity.CarRepository;
-import pleasework.kvira72.cars.entity.EngineRepository;
+import pleasework.kvira72.cars.user.UserService;
+import pleasework.kvira72.cars.user.persistence.AppUser;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,9 +22,13 @@ public class CarsService {
 
     private final CarRepository carRepository;
     private final EngineService engineService;
+    private final UserService userService;
 
     public CarDTO mapCar(Car car) {
+        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(null);
         return new CarDTO(car.getId(), car.getModel(), car.getYear(), car.isDriveable(),
+                ownerUsername,
+                car.getPriceInCents(),
                 new EngineDTO(
                         car.getEngine().getId(),
                         car.getEngine().getHorsePower(),
@@ -49,6 +54,18 @@ public class CarsService {
         newCar.setYear(request.getYear());
         newCar.setDriveable(request.isDriveable());
         newCar.setEngine(engineService.findEngine(request.getEngineId()));
+        newCar.setPriceInCents(request.getPriceInCents());
+
+        Set<AppUser> owners = request.getOwner().stream()
+                .map(userService::getUserById)
+                .collect(Collectors.toSet());
+
+        newCar.setOwners(owners);
+
+        for (AppUser owner : owners) {
+            owner.getCars().add(newCar);
+        }
+
         carRepository.save(newCar);
     }
 
@@ -56,7 +73,17 @@ public class CarsService {
         Car car = carRepository.findById(id).orElseThrow(() -> buildNotFoundException(id));
         car.setModel(request.getModel());
         car.setYear(request.getYear());
+        car.setPriceInCents(request.getPriceInCents());
         car.setDriveable(request.isDriveable());
+        Set<AppUser> owners = request.getOwner().stream()
+                .map(userService::getUserById)
+                .collect(Collectors.toSet());
+
+        car.setOwners(owners);
+
+        for (AppUser owner : owners) {
+            owner.getCars().add(car);
+        }
         if (car.getEngine().getId() != request.getEngineId()) {
             car.setEngine(engineService.findEngine(request.getEngineId()));
         }
