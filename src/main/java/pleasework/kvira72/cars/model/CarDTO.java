@@ -11,6 +11,7 @@ public class CarDTO {
     private String model;
     private int year;
     private boolean driveable;
+    private boolean forSale;
     private String owner;
     private long priceInCents;
     private EngineDTO engine;

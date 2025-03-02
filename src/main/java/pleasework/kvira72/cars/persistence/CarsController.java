@@ -28,6 +28,35 @@ public class CarsController {
         return carsService.getCars(page, pageSize);
     }
 
+    @GetMapping("/cars/for-sale")
+    @PreAuthorize(USER_OR_ADMIN)
+    public Page<CarDTO> getCarsForSale(@RequestParam int page,
+                                       @RequestParam int pageSize) {
+        return carsService.getCarsForSale(page, pageSize);
+    }
+
+    @PostMapping("/cars/{carId}/list-for-sale")
+    @PreAuthorize(USER_OR_ADMIN)
+    public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long ownerId) {
+        try {
+            carsService.listCarForSale(carId, ownerId);
+            return ResponseEntity.ok("Car listed for sale successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/cars/{carId}/purchase")
+    @PreAuthorize(USER_OR_ADMIN)
+    public ResponseEntity<String> purchaseCar(@PathVariable Long carId, @RequestParam Long buyerId) {
+        try {
+            carsService.purchaseCar(carId, buyerId);
+            return ResponseEntity.ok("Car purchased successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping
     @PreAuthorize(ADMIN)
     void addCar(@RequestBody @Valid CarRequest request) {

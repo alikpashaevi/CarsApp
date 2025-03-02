@@ -31,6 +31,9 @@ public class Car {
     @Column(name = "price_in_cents")
     private long priceInCents;
 
+    @Column(name = "for_sale")
+    private boolean forSale;
+
     @ManyToOne
     @JoinColumn(name = "engine_id")
     private Engine engine;

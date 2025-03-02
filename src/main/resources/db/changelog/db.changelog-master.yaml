@@ -11,3 +11,5 @@ databaseChangeLog:
         file: db/changelog/scripts/05-ADD-PRICING-AND-USER-BALANCE.sql
   - include:
       file: db/changelog/scripts/06-CREATE-USER-CARS-TABLE.sql
+  - include:
+        file: db/changelog/scripts/07-ADD-FOR-SALE-COLUMN-TO-CAR.sql

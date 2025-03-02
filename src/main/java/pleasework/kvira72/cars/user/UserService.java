@@ -9,9 +9,11 @@ import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.EngineDTO;
 import pleasework.kvira72.cars.persistence.CarsService;
+import pleasework.kvira72.cars.user.model.AppUserDTO;
 import pleasework.kvira72.cars.user.model.UserRequest;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 import pleasework.kvira72.cars.user.persistence.AppUserRepository;
+import pleasework.kvira72.cars.user.persistence.Role;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,6 +26,21 @@ public class UserService {
     private final AppUserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
+
+    public void saveUser(AppUser user) {
+        repository.save(user);
+    }
+
+    private AppUserDTO convertToAppUserDTO(AppUser user) {
+        return new AppUserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getBalanceInCents(),
+                user.getRoles(),
+                user.getCars().stream().findFirst().map(this::convertToCarDTO).orElse(null)
+        );
+    }
 
     public void createUser(UserRequest request) {
         AppUser user = new AppUser();
@@ -39,6 +56,11 @@ public class UserService {
     public Set<AppUser> getUsers() {
         return new HashSet<>(repository.findAll());
     }
+
+//    public AppUserDTO getUserDTO(String username) {
+////        return convertToAppUserDTO(repository.findByUsername(username).orElseThrow(() -> new NotFoundException("User with username " + username + " not found")));
+//        return repository.findUserWithCarsByUsername(username).map(this::convertToAppUserDTO).orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
+//    }
 
     public AppUser getUser(String username) {
         return repository.findByUsername(username).orElseThrow(() -> new NotFoundException("User with username " + username + " not found"));
@@ -60,6 +82,7 @@ public class UserService {
                 car.getModel(),
                 car.getYear(),
                 car.isDriveable(),
+                car.isForSale(),
                 ownerUsername,
                 car.getPriceInCents(),
                 new EngineDTO(car.getEngine().getId(), car.getEngine().getHorsePower(), car.getEngine().getCapacity())
