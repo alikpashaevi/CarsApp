@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pleasework.kvira72.cars.entity.Car;
 import pleasework.kvira72.cars.model.CarDTO;
+import pleasework.kvira72.cars.user.model.AppUserDTO;
 import pleasework.kvira72.cars.user.model.UserRequest;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
@@ -32,15 +33,15 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize(ADMIN)
-    public ResponseEntity<Set<AppUser>> getUsers() {
-        Set<AppUser> users = userService.getUsers();
+    public ResponseEntity<Set<AppUserDTO>> getUsers() {
+        Set<AppUserDTO> users = userService.getUsers();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{username}")
     @PreAuthorize(ADMIN)
-    public ResponseEntity<AppUser> getUser(@PathVariable String username) {
-        AppUser user = userService.getUser(username);
+    public ResponseEntity<AppUserDTO> getUser(@PathVariable String username) {
+        AppUserDTO user = userService.getUserDTO(username);
         return ResponseEntity.ok(user);
     }
 
