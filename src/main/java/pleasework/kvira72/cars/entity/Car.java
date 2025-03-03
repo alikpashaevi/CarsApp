@@ -41,4 +41,14 @@ public class Car {
     @ManyToMany(mappedBy = "cars")
     private Set<AppUser> owners = new HashSet<>();
 
+    public void addOwner(AppUser owner) {
+        this.owners.add(owner);
+        owner.getCars().add(this); // Update the other side of the relationship
+    }
+
+    public void removeOwner(AppUser owner) {
+        this.owners.remove(owner);
+        owner.getCars().remove(this); // Update the other side of the relationship
+    }
+
 }

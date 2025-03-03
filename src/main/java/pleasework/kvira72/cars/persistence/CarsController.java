@@ -1,5 +1,6 @@
 package pleasework.kvira72.cars.persistence;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
 
+import java.text.ParseException;
 import java.util.List;
 
 import static pleasework.kvira72.cars.sercurity.AuthorizationConstants.ADMIN;
@@ -37,23 +39,27 @@ public class CarsController {
 
     @PostMapping("/cars/{carId}/list-for-sale")
     @PreAuthorize(USER_OR_ADMIN)
-    public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long ownerId) {
+    public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long priceInCents, @RequestHeader("Authorization") String token) {
         try {
-            carsService.listCarForSale(carId, ownerId);
+            carsService.listCarForSale(carId, priceInCents, token);
             return ResponseEntity.ok("Car listed for sale successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ParseException | JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @PostMapping("/cars/{carId}/purchase")
     @PreAuthorize(USER_OR_ADMIN)
-    public ResponseEntity<String> purchaseCar(@PathVariable Long carId, @RequestParam Long buyerId) {
+    public ResponseEntity<String> purchaseCar(@PathVariable Long carId, @RequestHeader("Authorization") String token) {
         try {
-            carsService.purchaseCar(carId, buyerId);
+            carsService.purchaseCar(carId, token);
             return ResponseEntity.ok("Car purchased successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (ParseException | JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 

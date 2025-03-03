@@ -44,4 +44,20 @@ public class AppUser {
             inverseJoinColumns = @JoinColumn(name = "car_id")
     )
     private Set<Car> cars = new HashSet<>();
+
+    @Override
+    public String toString() {
+        return "AppUser{id=" + id + ", username='" + username + "'}";
+    }
+
+    public void addCar(Car car) {
+        this.cars.add(car);
+        car.getOwners().add(this); // Update the other side of the relationship
+    }
+
+    public void removeCar(Car car) {
+        this.cars.remove(car);
+        car.getOwners().remove(this); // Update the other side of the relationship
+    }
+
 }

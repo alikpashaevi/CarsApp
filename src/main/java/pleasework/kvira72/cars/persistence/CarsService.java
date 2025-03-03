@@ -1,5 +1,8 @@
 package pleasework.kvira72.cars.persistence;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -14,6 +17,8 @@ import pleasework.kvira72.cars.entity.CarRepository;
 import pleasework.kvira72.cars.user.UserService;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
+import java.text.ParseException;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,6 +47,17 @@ public class CarsService {
         return new NotFoundException("Car with id " + id + " not found");
     }
 
+    private String getUsernameFromToken(String token) throws ParseException, JsonProcessingException {
+        SignedJWT signedJWT = SignedJWT.parse(token.substring(7));
+
+        String payload = signedJWT.getPayload().toString();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map payloadMap = objectMapper.readValue(payload, Map.class);
+
+        return (String) payloadMap.get("sub");
+    }
+
     public Page<CarDTO> getCars(int page, int pageSize) {
         return carRepository.findCars(PageRequest.of(page, pageSize));
     }
@@ -52,31 +68,43 @@ public class CarsService {
     }
 
     @Transactional
-    public void listCarForSale(Long carId, Long ownerId) {
+    public void listCarForSale(Long carId, Long priceInCents, String token) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
-                .orElseThrow(() -> new RuntimeException("Car not found"));
-        AppUser owner = userService.getUserById(ownerId);
+                .orElseThrow(() -> buildNotFoundException(carId));
+
+        if (car.isForSale()) {
+            throw new RuntimeException("Car is already for sale");
+        }
+        String username = getUsernameFromToken(token);
+
+        AppUser owner = userService.getUser(username);
 
         if (!car.getOwners().contains(owner)) {
             throw new RuntimeException("You are not the owner of this car");
         }
-
+        car.setPriceInCents(priceInCents);
         car.setForSale(true);
         carRepository.save(car);
     }
 
     @Transactional
-    public void purchaseCar(Long carId, Long buyerId) {
+    public void purchaseCar(Long carId, String token) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new RuntimeException("Car not found"));
-        AppUser buyer = userService.getUserById(buyerId);
+
+        String username = getUsernameFromToken(token);
+
+        AppUser buyer = userService.getUser(username);
+
+        System.out.println("Username: " + username);
 
         if (!car.isForSale()) {
             throw new RuntimeException("Car is not for sale");
         }
 
-        if (Objects.equals(buyerId, car.getOwners().stream().findFirst().map(AppUser::getId).orElse(null))) {
-            throw new RuntimeException("You are the owner of this car");
+        if (car.getOwners().stream().anyMatch(owner -> Objects.equals(owner.getUsername(), username))) {
+            car.setForSale(false);
+            throw new RuntimeException("Sale cancelled");
         }
 
         if (buyer.getBalanceInCents() < car.getPriceInCents()) {
@@ -90,9 +118,8 @@ public class CarsService {
 
         seller.setBalanceInCents(seller.getBalanceInCents() + car.getPriceInCents());
 
-        owners.remove(seller);
-        owners.add(buyer);
-        car.setOwners(owners);
+        car.removeOwner(seller);
+        car.addOwner(buyer);
 
         car.setForSale(false);
 
