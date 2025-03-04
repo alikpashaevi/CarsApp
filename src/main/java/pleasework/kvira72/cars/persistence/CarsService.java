@@ -48,7 +48,7 @@ public class CarsService {
         return new NotFoundException("Car with id " + id + " not found");
     }
 
-    private String getUsernameFromToken(String token) throws ParseException, JsonProcessingException {
+    public String getUsernameFromToken(String token) throws ParseException, JsonProcessingException {
         SignedJWT signedJWT = SignedJWT.parse(token.substring(7));
 
         String payload = signedJWT.getPayload().toString();

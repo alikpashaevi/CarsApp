@@ -48,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
             if (expirationTime == null || expirationTime.before(new Date())) {
-                System.out.println("JWT is expired"); // TODO: replace with proper logging
+                logger.warn("Token is expired");
                 chain.doFilter(request, response);
                 return;
             }
@@ -62,7 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         } catch (Exception e) {
-            System.out.println("Error during jwt extraction"); // TODO: replace with proper logging
+            logger.error("Error during jwt extraction");
         }
 
         chain.doFilter(request, response);
