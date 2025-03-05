@@ -15,4 +15,5 @@ public class CarDTO {
     private String owner;
     private long priceInCents;
     private EngineDTO engine;
+    private String photoUrl;
 }

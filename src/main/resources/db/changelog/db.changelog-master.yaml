@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/scripts/06-CREATE-USER-CARS-TABLE.sql
   - include:
         file: db/changelog/scripts/07-ADD-FOR-SALE-COLUMN-TO-CAR.sql
+  - include:
+        file: db/changelog/scripts/08-ADD-PHOTOURL-COLUMN-TO-CAR.sql

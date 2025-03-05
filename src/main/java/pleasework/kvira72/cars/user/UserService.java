@@ -90,6 +90,7 @@ public class UserService {
                 new EngineDTO(
                         car.getEngine().getId(),
                         car.getEngine().getHorsePower(),
-                        car.getEngine().getCapacity()));
+                        car.getEngine().getCapacity()),
+                car.getPhotoUrl());
     }
 }

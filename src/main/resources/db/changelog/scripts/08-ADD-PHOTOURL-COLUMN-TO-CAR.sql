@@ -1,0 +1,1 @@
+ALTER TABLE cars.car ADD COLUMN photo_url VARCHAR;

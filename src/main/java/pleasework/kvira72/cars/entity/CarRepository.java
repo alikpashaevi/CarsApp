@@ -11,7 +11,7 @@ public interface CarRepository  extends JpaRepository<Car, Long> {
     @Query(
             "SELECT NEW pleasework.kvira72.cars.model.CarDTO " +
                     "(c.id, c.model, c.year, c.driveable, c.forSale, o.username, c.priceInCents, " +
-                    "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity)) " +
+                    "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity), c.photoUrl) " +
                     "FROM Car c " +
                     "JOIN c.engine e " +
                     "LEFT JOIN c.owners o" // Explicitly joining owners
@@ -21,7 +21,7 @@ public interface CarRepository  extends JpaRepository<Car, Long> {
     @Query(
             "SELECT NEW pleasework.kvira72.cars.model.CarDTO " +
                     "(c.id, c.model, c.year, c.driveable, c.forSale, o.username, c.priceInCents, " +
-                    "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity)) " +
+                    "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity), c.photoUrl) " +
                     "FROM Car c " +
                     "JOIN c.engine e " +
                     "LEFT JOIN c.owners o " + // Explicitly joining owners

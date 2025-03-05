@@ -41,7 +41,8 @@ public class CarsService {
                 new EngineDTO(
                         car.getEngine().getId(),
                         car.getEngine().getHorsePower(),
-                        car.getEngine().getCapacity()));
+                        car.getEngine().getCapacity()),
+                car.getPhotoUrl());
     }
 
     private NotFoundException buildNotFoundException(long id) {
@@ -140,13 +141,14 @@ public class CarsService {
 //        carRepository.save(car);
 //    }
 
-    public void addCar(CarRequest request) {
+    public void addCar(CarRequest request, String photoUrl) {
         Car newCar = new Car();
         newCar.setModel(request.getModel());
         newCar.setYear(request.getYear());
         newCar.setDriveable(request.isDriveable());
         newCar.setEngine(engineService.findEngine(request.getEngineId()));
         newCar.setPriceInCents(request.getPriceInCents());
+        newCar.setPhotoUrl(photoUrl);
 
         Set<AppUser> owners = request.getOwner().stream()
                 .map(userService::getUserById)

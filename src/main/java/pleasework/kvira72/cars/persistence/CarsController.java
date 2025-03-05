@@ -7,9 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
+import pleasework.kvira72.cars.persistence.aws.S3Service;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.List;
 
@@ -22,6 +25,8 @@ import static pleasework.kvira72.cars.sercurity.AuthorizationConstants.USER_OR_A
 public class CarsController {
 
     private final CarsService carsService;
+
+    private final S3Service s3Service;
 
     @GetMapping
     @PreAuthorize(USER_OR_ADMIN)
@@ -65,9 +70,17 @@ public class CarsController {
 
     @PostMapping
     @PreAuthorize(ADMIN)
-    void addCar(@RequestBody @Valid CarRequest request) {
-        carsService.addCar(request);
+    void addCar(@RequestPart("photo") MultipartFile photo, @RequestPart("car") @Valid CarRequest request) throws IOException {
+        String photoUrl = s3Service.uploadFile(
+                "car-photos/" + photo.getOriginalFilename(),
+                photo.getInputStream(),
+                photo.getSize()
+        );
+
+        carsService.addCar(request, photoUrl);
     }
+
+
 
     @PutMapping("/{id}")
     @PreAuthorize(ADMIN)

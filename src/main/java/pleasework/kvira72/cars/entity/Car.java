@@ -41,6 +41,9 @@ public class Car {
     @ManyToMany(mappedBy = "cars")
     private Set<AppUser> owners = new HashSet<>();
 
+    @Column(name = "photo_url")
+    private String photoUrl;
+
     public void addOwner(AppUser owner) {
         this.owners.add(owner);
         owner.getCars().add(this); // Update the other side of the relationship

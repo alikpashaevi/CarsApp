@@ -39,6 +39,8 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation("com.nimbusds:nimbus-jose-jwt:10.0.1")
+
+    implementation 'software.amazon.awssdk:s3:2.30.31'
 }
 
 tasks.named('test') {
