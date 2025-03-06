@@ -43,6 +43,14 @@ public class CarsController {
         return carsService.getCarsForSale(page, pageSize);
     }
 
+    @GetMapping("/search")
+    @PreAuthorize(USER_OR_ADMIN)
+    public Page<CarDTO> searchCars(@RequestParam String model,
+                                   @RequestParam int page,
+                                   @RequestParam int pageSize) {
+        return carsService.searchCars(model, page, pageSize);
+    }
+
     @PostMapping("/cars/{carId}/list-for-sale")
     @PreAuthorize(USER_OR_ADMIN)
     public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long priceInCents, @RequestHeader("Authorization") String token) {

@@ -124,8 +124,6 @@ class CarsServiceTest {
         assertThrows(RuntimeException.class, () -> spyService.purchaseCar(carId, token));
     }
 
-    // TODO: Debug it
-
     @Test
     void testGetCars_ShouldReturnPagedResults() {
         CarDTO carDTO = carsService.mapCar(car);

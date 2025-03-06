@@ -69,6 +69,10 @@ public class CarsService {
         return mapCar(car);
     }
 
+    public Page<CarDTO> searchCars(String model, int page, int pageSize) {
+        return carRepository.searchCarsByModelName(model, PageRequest.of(page, pageSize));
+    }
+
     @Transactional
     public void listCarForSale(Long carId, Long priceInCents, String token) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
