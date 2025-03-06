@@ -148,27 +148,26 @@ public class CarsService {
         newCar.setDriveable(request.isDriveable());
         newCar.setEngine(engineService.findEngine(request.getEngineId()));
         newCar.setPriceInCents(request.getPriceInCents());
-        newCar.setPhotoUrl(photoUrl);
-
-        Set<AppUser> owners = request.getOwner().stream()
-                .map(userService::getUserById)
-                .collect(Collectors.toSet());
-
-        newCar.setOwners(owners);
-
-        for (AppUser owner : owners) {
-            owner.getCars().add(newCar);
-        }
+        setAttributesToCar(request, photoUrl, newCar);
 
         carRepository.save(newCar);
     }
 
-    public void updateCar(long id, CarRequest request) {
+    public void updateCar(long id, CarRequest request, String photoUrl) {
         Car car = carRepository.findById(id).orElseThrow(() -> buildNotFoundException(id));
         car.setModel(request.getModel());
         car.setYear(request.getYear());
         car.setPriceInCents(request.getPriceInCents());
         car.setDriveable(request.isDriveable());
+        setAttributesToCar(request, photoUrl, car);
+        if (car.getEngine().getId() != request.getEngineId()) {
+            car.setEngine(engineService.findEngine(request.getEngineId()));
+        }
+        carRepository.save(car);
+    }
+
+    private void setAttributesToCar(CarRequest request, String photoUrl, Car car) {
+        car.setPhotoUrl(photoUrl);
         Set<AppUser> owners = request.getOwner().stream()
                 .map(userService::getUserById)
                 .collect(Collectors.toSet());
@@ -178,10 +177,6 @@ public class CarsService {
         for (AppUser owner : owners) {
             owner.getCars().add(car);
         }
-        if (car.getEngine().getId() != request.getEngineId()) {
-            car.setEngine(engineService.findEngine(request.getEngineId()));
-        }
-        carRepository.save(car);
     }
 
     public void deleteCar(long id) {

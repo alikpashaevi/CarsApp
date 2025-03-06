@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
 import pleasework.kvira72.cars.persistence.aws.S3Service;
+import software.amazon.awssdk.http.HttpStatusCode;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -70,7 +71,7 @@ public class CarsController {
 
     @PostMapping
     @PreAuthorize(ADMIN)
-    void addCar(@RequestPart("photo") MultipartFile photo, @RequestPart("car") @Valid CarRequest request) throws IOException {
+    ResponseEntity<Void> addCar(@RequestPart("photo") MultipartFile photo, @RequestPart("car") @Valid CarRequest request) throws IOException {
         String photoUrl = s3Service.uploadFile(
                 "car-photos/" + photo.getOriginalFilename(),
                 photo.getInputStream(),
@@ -78,14 +79,20 @@ public class CarsController {
         );
 
         carsService.addCar(request, photoUrl);
+        return ResponseEntity.status(HttpStatusCode.CREATED).build();
     }
 
 
 
     @PutMapping("/{id}")
     @PreAuthorize(ADMIN)
-    ResponseEntity<String> updateCar(@PathVariable long id, @RequestBody @Valid CarRequest request) {
-        carsService.updateCar(id, request);
+    ResponseEntity<String> updateCar(@PathVariable Long id, @RequestPart("photo") MultipartFile photo, @RequestPart("car") @Valid CarRequest request) throws IOException {
+        String photoUrl = s3Service.uploadFile(
+                "car-photos/" + photo.getOriginalFilename(),
+                photo.getInputStream(),
+                photo.getSize()
+        );
+        carsService.updateCar(id, request, photoUrl);
         return ResponseEntity.ok("Car updated successfully");
     }
 

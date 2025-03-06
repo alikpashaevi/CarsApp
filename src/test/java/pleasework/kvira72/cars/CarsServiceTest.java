@@ -47,7 +47,6 @@ class CarsServiceTest {
 
     private Car car;
     private AppUser owner;
-    private Engine engine;
 
     @BeforeEach
     void setUp() {
@@ -55,7 +54,7 @@ class CarsServiceTest {
         owner.setUsername("testUser");
         owner.setBalanceInCents(100000L);
 
-        engine = new Engine();
+        Engine engine = new Engine();
         engine.setId(1L);
         engine.setHorsePower(200);
         engine.setCapacity(2.0);
@@ -127,16 +126,17 @@ class CarsServiceTest {
 
     // TODO: Debug it
 
-//    @Test
-//    void testGetCars_ShouldReturnPagedResults() {
-//        Page<Car> carPage = new PageImpl<>(Collections.singletonList(car));
-//        when(carRepository.findCars(PageRequest.of(0, 10))).thenReturn(carPage);
-//
-//        Page<CarDTO> result = carsService.getCars(0, 10);
-//
-//        assertNotNull(result);
-//        assertEquals(1, result.getContent().size());
-//    }
+    @Test
+    void testGetCars_ShouldReturnPagedResults() {
+        CarDTO carDTO = carsService.mapCar(car);
+        PageImpl<CarDTO> carPage = new PageImpl<>(Collections.singletonList(carDTO));
+        when(carRepository.findCars(PageRequest.of(0, 10))).thenReturn(carPage);
+
+        Page<CarDTO> result = carsService.getCars(0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.getContent().size());
+    }
 
     @Test
     void testDeleteCar_ShouldCallRepositoryDeleteById() {

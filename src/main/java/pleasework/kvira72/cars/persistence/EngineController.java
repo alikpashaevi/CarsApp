@@ -51,8 +51,8 @@ public class EngineController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize(ADMIN)
-    ResponseEntity<Void> deleteEngine(@PathVariable Long id) {
+    ResponseEntity<String> deleteEngine(@PathVariable Long id) {
         engineService.deleteEngine(id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok("Engine deleted successfully");
     }
 }
