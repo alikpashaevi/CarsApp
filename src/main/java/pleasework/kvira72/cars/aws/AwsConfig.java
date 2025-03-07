@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars.persistence.aws;
+package pleasework.kvira72.cars.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

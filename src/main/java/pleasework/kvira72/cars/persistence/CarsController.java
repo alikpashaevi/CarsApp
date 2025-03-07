@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
-import pleasework.kvira72.cars.persistence.aws.S3Service;
+import pleasework.kvira72.cars.aws.S3Service;
 import software.amazon.awssdk.http.HttpStatusCode;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.List;
 
 import static pleasework.kvira72.cars.sercurity.AuthorizationConstants.ADMIN;
 import static pleasework.kvira72.cars.sercurity.AuthorizationConstants.USER_OR_ADMIN;

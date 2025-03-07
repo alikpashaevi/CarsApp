@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars.persistence.aws;
+package pleasework.kvira72.cars.aws;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
