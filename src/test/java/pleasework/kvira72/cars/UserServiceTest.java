@@ -43,12 +43,13 @@ class UserServiceTest {
         user = new AppUser();
         user.setUsername("testuser");
         user.setPassword("encodedPassword");
+        user.setBalanceInCents(1000000L);
         user.setRoles(Set.of(new Role()));
     }
 
     @Test
     void testCreateUser() {
-        UserRequest request = new UserRequest("testuser", "password", Set.of(1L));
+        UserRequest request = new UserRequest("testuser", "password", 1000000L, Set.of(1L));
         when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
         when(roleService.getRole(1L)).thenReturn(new Role());
 

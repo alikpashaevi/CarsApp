@@ -2,14 +2,12 @@ package pleasework.kvira72.cars.user;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pleasework.kvira72.cars.entity.Car;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.EngineDTO;
-import pleasework.kvira72.cars.persistence.CarsService;
 import pleasework.kvira72.cars.user.model.AppUserDTO;
 import pleasework.kvira72.cars.user.model.UserRequest;
 import pleasework.kvira72.cars.user.persistence.AppUser;
@@ -47,16 +45,13 @@ public class UserService {
         AppUser user = new AppUser();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setBalanceInCents(request.getBalanceInCents());
         user.setRoles(request.getRoleIds().stream()
                 .map(roleService::getRole)
                 .collect(Collectors.toSet()));
 
         repository.save(user);
     }
-//
-//    public Set<AppUser> getUsers() {
-//        return new HashSet<>(repository.findAll());
-//    }
 
     public Set<AppUserDTO> getUsers() {
         Set<AppUser> users = new HashSet<>(repository.findAll());
@@ -75,11 +70,6 @@ public class UserService {
     public AppUser getUserById(Long id) {
         return repository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
     }
-//
-//    public Set<CarDTO> getUserCars(Long username) {
-//        Set<Car> cars = repository.findCarsByUsername(username);
-//        return cars.stream().map(this::convertToCarDTO).collect(Collectors.toSet());
-//    }
 
     private CarDTO convertToCarDTO(Car car) {
         String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(null);
