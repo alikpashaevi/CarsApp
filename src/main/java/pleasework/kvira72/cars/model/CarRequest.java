@@ -2,6 +2,7 @@ package pleasework.kvira72.cars.model;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import pleasework.kvira72.cars.validation.ValidModelYear;
 
 import java.util.Set;
 
@@ -11,8 +12,7 @@ public class CarRequest {
     @NotBlank
     @Size(max=20)
     private String model;
-    @Min(1940)
-    @Max(2025)
+    @ValidModelYear
     private int year;
     private boolean driveable;
     @Positive

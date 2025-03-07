@@ -36,7 +36,7 @@ public class CarsController {
         return carsService.getCars(page, pageSize);
     }
 
-    @GetMapping("/cars/for-sale")
+    @GetMapping("/for-sale")
     @PreAuthorize(USER_OR_ADMIN)
     public Page<CarDTO> getCarsForSale(@RequestParam int page,
                                        @RequestParam int pageSize) {
@@ -51,7 +51,7 @@ public class CarsController {
         return carsService.searchCars(model, page, pageSize);
     }
 
-    @PostMapping("/cars/{carId}/list-for-sale")
+    @PostMapping("/{carId}/list-for-sale")
     @PreAuthorize(USER_OR_ADMIN)
     public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long priceInCents, @RequestHeader("Authorization") String token) {
         try {
@@ -64,7 +64,7 @@ public class CarsController {
         }
     }
 
-    @PostMapping("/cars/{carId}/purchase")
+    @PostMapping("/{carId}/purchase")
     @PreAuthorize(USER_OR_ADMIN)
     public ResponseEntity<String> purchaseCar(@PathVariable Long carId, @RequestHeader("Authorization") String token) {
         try {
