@@ -14,7 +14,7 @@ public interface CarRepository  extends JpaRepository<Car, Long> {
                     "NEW pleasework.kvira72.cars.model.EngineDTO(e.id, e.horsePower, e.capacity), c.photoUrl) " +
                     "FROM Car c " +
                     "JOIN c.engine e " +
-                    "LEFT JOIN c.owners o" // Explicitly joining owners
+                    "LEFT JOIN c.owners o"
     )
     Page<CarDTO> findCars(Pageable pageable);
 
