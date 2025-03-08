@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,7 +21,6 @@ import pleasework.kvira72.cars.entity.Engine;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.persistence.CarsService;
-import pleasework.kvira72.cars.persistence.EngineService;
 import pleasework.kvira72.cars.user.UserService;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
@@ -28,7 +28,6 @@ import java.text.ParseException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class CarsServiceTest {
@@ -37,22 +36,28 @@ class CarsServiceTest {
     private CarRepository carRepository;
 
     @Mock
-    private EngineService engineService;
-
-    @Mock
     private UserService userService;
 
+    @Spy
     @InjectMocks
     private CarsService carsService;
 
     private Car car;
     private AppUser owner;
+    private AppUser buyer;
+    private final String mockToken = "Bearer mock.jwt.token";
 
     @BeforeEach
     void setUp() {
         owner = new AppUser();
         owner.setUsername("testUser");
-        owner.setBalanceInCents(100000L);
+        owner.setBalanceInCents(10000L);
+
+
+        buyer = new AppUser();
+        buyer.setUsername("buyer");
+        buyer.setBalanceInCents(150000L);
+        buyer.setBalanceInCents(20000L);
 
         Engine engine = new Engine();
         engine.setId(1L);
@@ -65,7 +70,7 @@ class CarsServiceTest {
         car.setYear(2022);
         car.setDriveable(true);
         car.setForSale(false);
-        car.setPriceInCents(50000);
+        car.setPriceInCents(5000L);
         car.setEngine(engine);
         car.setOwners(new HashSet<>(Collections.singletonList(owner)));
     }
@@ -80,6 +85,8 @@ class CarsServiceTest {
         assertEquals(car.getYear(), carDTO.getYear());
         assertEquals(owner.getUsername(), carDTO.getOwner());
     }
+
+
 
     @Test
     void testGetCar_ShouldReturnCarDTO() {
@@ -100,7 +107,22 @@ class CarsServiceTest {
     }
 
     @Test
-    void testListCarForSale_ShouldThrowExceptionIfAlreadyForSale() throws ParseException, JsonProcessingException {
+    void testListCarForSale_Success() throws ParseException, JsonProcessingException {
+        doReturn("seller").when(carsService).getUsernameFromToken(mockToken);
+
+        when(carRepository.findById(1L)).thenReturn(Optional.of(car));
+        when(userService.getUser("seller")).thenReturn(owner);
+
+        carsService.listCarForSale(1L, 5000L, mockToken);
+
+        assertTrue(car.isForSale());
+        assertEquals(5000L, car.getPriceInCents());
+        verify(carRepository, times(1)).save(car);
+    }
+
+
+    @Test
+    void testListCarForSale_ShouldThrowExceptionIfAlreadyForSale() {
         car.setForSale(true);
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
 
@@ -122,6 +144,38 @@ class CarsServiceTest {
         doReturn("mockUsername").when(spyService).getUsernameFromToken(anyString());
 
         assertThrows(RuntimeException.class, () -> spyService.purchaseCar(carId, token));
+    }
+
+    @Test
+    void testPurchaseCar_Success() throws ParseException, JsonProcessingException {
+        // Mock the token decoding
+        car.setForSale(true);
+        doReturn("buyer").when(carsService).getUsernameFromToken(mockToken);
+
+        when(carRepository.findById(1L)).thenReturn(Optional.of(car));
+        when(userService.getUser("buyer")).thenReturn(buyer);
+
+        carsService.purchaseCar(1L, mockToken);
+
+        assertFalse(car.isForSale());
+        assertTrue(car.getOwners().contains(buyer));
+        assertEquals(15000L, owner.getBalanceInCents());
+        assertEquals(15000L, buyer.getBalanceInCents());
+
+        verify(carRepository, times(1)).save(car);
+        verify(userService, times(1)).saveUser(buyer);
+        verify(userService, times(1)).saveUser(owner);
+    }
+
+    @Test
+    void testPurchaseCar_ShouldThrowExceptionIfInsufficientBalance() throws ParseException, JsonProcessingException {
+        buyer.setBalanceInCents(0L);
+        doReturn("buyer").when(carsService).getUsernameFromToken(mockToken);
+
+        when(carRepository.findById(1L)).thenReturn(Optional.of(car));
+        when(userService.getUser("buyer")).thenReturn(buyer);
+
+        assertThrows(RuntimeException.class, () -> carsService.purchaseCar(1L, mockToken));
     }
 
     @Test
