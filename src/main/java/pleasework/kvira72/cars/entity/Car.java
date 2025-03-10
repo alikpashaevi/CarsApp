@@ -46,12 +46,12 @@ public class Car {
 
     public void addOwner(AppUser owner) {
         this.owners.add(owner);
-        owner.getCars().add(this); // Update the other side of the relationship
+        owner.getCars().add(this);
     }
 
     public void removeOwner(AppUser owner) {
         this.owners.remove(owner);
-        owner.getCars().remove(this); // Update the other side of the relationship
+        owner.getCars().remove(this);
     }
 
 }

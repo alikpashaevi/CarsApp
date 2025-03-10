@@ -86,8 +86,6 @@ class CarsServiceTest {
         assertEquals(owner.getUsername(), carDTO.getOwner());
     }
 
-
-
     @Test
     void testGetCar_ShouldReturnCarDTO() {
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
@@ -131,7 +129,6 @@ class CarsServiceTest {
 
     @Test
     void testPurchaseCar_ShouldThrowExceptionIfNotForSale() throws ParseException, JsonProcessingException {
-        // Arrange
         Long carId = 1L;
         String token = "Bearer mockToken";
         Car car = new Car();
@@ -148,7 +145,6 @@ class CarsServiceTest {
 
     @Test
     void testPurchaseCar_Success() throws ParseException, JsonProcessingException {
-        // Mock the token decoding
         car.setForSale(true);
         doReturn("buyer").when(carsService).getUsernameFromToken(mockToken);
 

@@ -33,7 +33,7 @@ public class CarsService {
     private final UserService userService;
 
     public CarDTO mapCar(Car car) {
-        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(null);
+        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(new NotFoundException("Owner not found").getMessage());
         return new CarDTO(car.getId(), car.getModel(), car.getYear(), car.isDriveable(),
                 car.isForSale(),
                 ownerUsername,
@@ -49,15 +49,10 @@ public class CarsService {
         return new NotFoundException("Car with id " + id + " not found");
     }
 
-    public String getUsernameFromToken(String token) throws ParseException, JsonProcessingException {
+    public String getUsernameFromToken(String token) throws ParseException {
         SignedJWT signedJWT = SignedJWT.parse(token.substring(7));
 
-        String payload = signedJWT.getPayload().toString();
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map payloadMap = objectMapper.readValue(payload, Map.class);
-
-        return (String) payloadMap.get("sub");
+        return signedJWT.getJWTClaimsSet().getSubject();
     }
 
     public Page<CarDTO> getCars(int page, int pageSize) {
@@ -73,7 +68,6 @@ public class CarsService {
         return carRepository.searchCarsByModelName(model, PageRequest.of(page, pageSize));
     }
 
-    @Transactional
     public void listCarForSale(Long carId, Long priceInCents, String token) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> buildNotFoundException(carId));
@@ -93,16 +87,13 @@ public class CarsService {
         carRepository.save(car);
     }
 
-    @Transactional
     public void purchaseCar(Long carId, String token) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
-                .orElseThrow(() -> new RuntimeException("Car not found"));
+                .orElseThrow(() -> new NotFoundException("Car not found"));
 
         String username = getUsernameFromToken(token);
 
         AppUser buyer = userService.getUser(username);
-
-        System.out.println("Username: " + username);
 
         if (!car.isForSale()) {
             throw new RuntimeException("Car is not for sale");
@@ -117,6 +108,7 @@ public class CarsService {
             throw new RuntimeException("Insufficient balance");
         }
 
+        // to look for
         Set<AppUser> owners = car.getOwners();
         AppUser seller = owners.iterator().next();
 
@@ -129,6 +121,7 @@ public class CarsService {
 
         car.setForSale(false);
 
+        // saving
         userService.saveUser(buyer);
         userService.saveUser(seller);
         carRepository.save(car);
