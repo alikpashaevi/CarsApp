@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars.persistence;
+package pleasework.kvira72.cars.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pleasework.kvira72.cars.service.CarsService;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
 import pleasework.kvira72.cars.aws.S3Service;
@@ -52,10 +53,21 @@ public class CarsController {
 
     @PostMapping("/{carId}/list-for-sale")
     @PreAuthorize(USER_OR_ADMIN)
-    public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long priceInCents, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> listCarForSale(@PathVariable Long carId, @RequestParam Long priceInCents) {
         try {
-            carsService.listCarForSale(carId, priceInCents, token);
+            carsService.listCarForSale(carId, priceInCents);
             return ResponseEntity.ok("Car listed for sale successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{carId}/purchase")
+    @PreAuthorize(USER_OR_ADMIN)
+    public ResponseEntity<String> purchaseCar(@PathVariable Long carId) {
+        try {
+            carsService.purchaseCar(carId);
+            return ResponseEntity.ok("Car purchased successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (ParseException | JsonProcessingException e) {
@@ -63,16 +75,14 @@ public class CarsController {
         }
     }
 
-    @PostMapping("/{carId}/purchase")
+    @PostMapping("/{carId}/cancel-sale")
     @PreAuthorize(USER_OR_ADMIN)
-    public ResponseEntity<String> purchaseCar(@PathVariable Long carId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<String> cancelSale(@PathVariable Long carId) {
         try {
-            carsService.purchaseCar(carId, token);
-            return ResponseEntity.ok("Car purchased successfully");
+            carsService.cancelSale(carId);
+            return ResponseEntity.ok("Car sale canceled successfully");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (ParseException | JsonProcessingException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -88,8 +98,6 @@ public class CarsController {
         carsService.addCar(request, photoUrl);
         return ResponseEntity.status(HttpStatusCode.CREATED).build();
     }
-
-
 
     @PutMapping("/{id}")
     @PreAuthorize(ADMIN)

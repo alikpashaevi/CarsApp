@@ -8,11 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import pleasework.kvira72.cars.entity.Engine;
-import pleasework.kvira72.cars.entity.EngineRepository;
+import pleasework.kvira72.cars.persistence.Engine;
+import pleasework.kvira72.cars.persistence.EngineRepository;
 import pleasework.kvira72.cars.model.EngineDTO;
 import pleasework.kvira72.cars.model.EngineRequest;
-import pleasework.kvira72.cars.persistence.EngineService;
+import pleasework.kvira72.cars.service.EngineService;
 
 import java.util.List;
 

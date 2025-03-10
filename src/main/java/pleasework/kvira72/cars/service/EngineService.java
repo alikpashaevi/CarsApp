@@ -1,18 +1,15 @@
-package pleasework.kvira72.cars.persistence;
+package pleasework.kvira72.cars.service;
 
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import pleasework.kvira72.cars.entity.Engine;
-import pleasework.kvira72.cars.entity.EngineRepository;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.EngineDTO;
 import pleasework.kvira72.cars.model.EngineRequest;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import pleasework.kvira72.cars.persistence.Engine;
+import pleasework.kvira72.cars.persistence.EngineRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars.entity;
+package pleasework.kvira72.cars.persistence;
 
 import jakarta.persistence.*;
 import lombok.Getter;

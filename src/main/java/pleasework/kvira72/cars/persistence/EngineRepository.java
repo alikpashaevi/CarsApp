@@ -1,14 +1,11 @@
-package pleasework.kvira72.cars.entity;
+package pleasework.kvira72.cars.persistence;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import org.springframework.data.domain.Pageable;
 import pleasework.kvira72.cars.model.EngineDTO;
-
-import java.util.List;
 
 
 public interface EngineRepository extends JpaRepository<Engine, Long> {

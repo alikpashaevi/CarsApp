@@ -4,10 +4,10 @@ package pleasework.kvira72.cars.user;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pleasework.kvira72.cars.entity.Car;
+import pleasework.kvira72.cars.components.MapCar;
+import pleasework.kvira72.cars.persistence.Car;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
-import pleasework.kvira72.cars.model.EngineDTO;
 import pleasework.kvira72.cars.user.model.AppUserDTO;
 import pleasework.kvira72.cars.user.model.UserRequest;
 import pleasework.kvira72.cars.user.persistence.AppUser;
@@ -24,7 +24,6 @@ public class UserService {
     private final AppUserRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-//    private final CarsService carsService;
 
     public void saveUser(AppUser user) {
         repository.save(user);
@@ -72,15 +71,6 @@ public class UserService {
     }
 
     private CarDTO convertToCarDTO(Car car) {
-        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(null);
-        return new CarDTO(car.getId(), car.getModel(), car.getYear(), car.isDriveable(),
-                car.isForSale(),
-                ownerUsername,
-                car.getPriceInCents(),
-                new EngineDTO(
-                        car.getEngine().getId(),
-                        car.getEngine().getHorsePower(),
-                        car.getEngine().getCapacity()),
-                car.getPhotoUrl());
+        return MapCar.mapCar(car);
     }
 }

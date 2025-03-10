@@ -1,25 +1,21 @@
-package pleasework.kvira72.cars.persistence;
+package pleasework.kvira72.cars.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nimbusds.jwt.SignedJWT;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import pleasework.kvira72.cars.components.MapCar;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
 import pleasework.kvira72.cars.model.CarRequest;
-import pleasework.kvira72.cars.model.EngineDTO;
-import pleasework.kvira72.cars.entity.Car;
-import pleasework.kvira72.cars.entity.CarRepository;
+import pleasework.kvira72.cars.persistence.Car;
+import pleasework.kvira72.cars.persistence.CarRepository;
 import pleasework.kvira72.cars.user.UserService;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
 import java.text.ParseException;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,27 +28,13 @@ public class CarsService {
     private final EngineService engineService;
     private final UserService userService;
 
-    public CarDTO mapCar(Car car) {
-        String ownerUsername = car.getOwners().stream().findFirst().map(AppUser::getUsername).orElse(new NotFoundException("Owner not found").getMessage());
-        return new CarDTO(car.getId(), car.getModel(), car.getYear(), car.isDriveable(),
-                car.isForSale(),
-                ownerUsername,
-                car.getPriceInCents(),
-                new EngineDTO(
-                        car.getEngine().getId(),
-                        car.getEngine().getHorsePower(),
-                        car.getEngine().getCapacity()),
-                car.getPhotoUrl());
-    }
-
     private NotFoundException buildNotFoundException(long id) {
         return new NotFoundException("Car with id " + id + " not found");
     }
 
-    public String getUsernameFromToken(String token) throws ParseException {
-        SignedJWT signedJWT = SignedJWT.parse(token.substring(7));
+    public String getUsernameFromToken() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return signedJWT.getJWTClaimsSet().getSubject();
     }
 
     public Page<CarDTO> getCars(int page, int pageSize) {
@@ -61,21 +43,21 @@ public class CarsService {
 
     public CarDTO getCar(long id) {
         Car car = carRepository.findById(id).orElseThrow(() -> buildNotFoundException(id));
-        return mapCar(car);
+        return MapCar.mapCar(car);
     }
 
     public Page<CarDTO> searchCars(String model, int page, int pageSize) {
         return carRepository.searchCarsByModelName(model, PageRequest.of(page, pageSize));
     }
 
-    public void listCarForSale(Long carId, Long priceInCents, String token) throws ParseException, JsonProcessingException {
+    public void listCarForSale(Long carId, Long priceInCents)  {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> buildNotFoundException(carId));
 
         if (car.isForSale()) {
             throw new RuntimeException("Car is already for sale");
         }
-        String username = getUsernameFromToken(token);
+        String username = getUsernameFromToken();
 
         AppUser owner = userService.getUser(username);
 
@@ -87,11 +69,11 @@ public class CarsService {
         carRepository.save(car);
     }
 
-    public void purchaseCar(Long carId, String token) throws ParseException, JsonProcessingException {
+    public void purchaseCar(Long carId) throws ParseException, JsonProcessingException {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new NotFoundException("Car not found"));
 
-        String username = getUsernameFromToken(token);
+        String username = getUsernameFromToken();
 
         AppUser buyer = userService.getUser(username);
 
@@ -127,16 +109,29 @@ public class CarsService {
         carRepository.save(car);
     }
 
+    public void cancelSale(Long carId) {
+        Car car = carRepository.findById(carId)
+                .orElseThrow(() -> new NotFoundException("Car not found"));
+
+        String username = getUsernameFromToken();
+
+        AppUser owner = userService.getUser(username);
+
+        if (!car.isForSale()) {
+            throw new RuntimeException("Car is not for sale");
+        }
+
+        if (!car.getOwners().contains(owner)) {
+            throw new RuntimeException("You are not the owner of this car");
+        }
+
+        car.setForSale(false);
+        carRepository.save(car);
+    }
+
     public Page<CarDTO> getCarsForSale(int page, int pageSize) {
         return carRepository.findCarsForSale(PageRequest.of(page, pageSize));
     }
-
-//    public void removeCarFromSale(Long carId) {
-//        Car car = carRepository.findById(carId)
-//                .orElseThrow(() -> new RuntimeException("Car not found"));
-//        car.setForSale(false);
-//        carRepository.save(car);
-//    }
 
     public void addCar(CarRequest request, String photoUrl) {
         Car newCar = new Car();

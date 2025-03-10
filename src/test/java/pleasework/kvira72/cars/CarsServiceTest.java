@@ -15,12 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import pleasework.kvira72.cars.entity.Car;
-import pleasework.kvira72.cars.entity.CarRepository;
-import pleasework.kvira72.cars.entity.Engine;
+import pleasework.kvira72.cars.components.MapCar;
+import pleasework.kvira72.cars.persistence.Car;
+import pleasework.kvira72.cars.persistence.CarRepository;
+import pleasework.kvira72.cars.persistence.Engine;
 import pleasework.kvira72.cars.error.NotFoundException;
 import pleasework.kvira72.cars.model.CarDTO;
-import pleasework.kvira72.cars.persistence.CarsService;
+import pleasework.kvira72.cars.service.CarsService;
 import pleasework.kvira72.cars.user.UserService;
 import pleasework.kvira72.cars.user.persistence.AppUser;
 
@@ -45,7 +46,6 @@ class CarsServiceTest {
     private Car car;
     private AppUser owner;
     private AppUser buyer;
-    private final String mockToken = "Bearer mock.jwt.token";
 
     @BeforeEach
     void setUp() {
@@ -77,7 +77,7 @@ class CarsServiceTest {
 
     @Test
     void testMapCar() {
-        CarDTO carDTO = carsService.mapCar(car);
+        CarDTO carDTO = MapCar.mapCar(car);
 
         assertNotNull(carDTO);
         assertEquals(car.getId(), carDTO.getId());
@@ -105,13 +105,13 @@ class CarsServiceTest {
     }
 
     @Test
-    void testListCarForSale_Success() throws ParseException, JsonProcessingException {
-        doReturn("seller").when(carsService).getUsernameFromToken(mockToken);
+    void testListCarForSale_Success()  {
+        doReturn("seller").when(carsService).getUsernameFromToken();
 
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
         when(userService.getUser("seller")).thenReturn(owner);
 
-        carsService.listCarForSale(1L, 5000L, mockToken);
+        carsService.listCarForSale(1L, 5000L);
 
         assertTrue(car.isForSale());
         assertEquals(5000L, car.getPriceInCents());
@@ -124,13 +124,12 @@ class CarsServiceTest {
         car.setForSale(true);
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
 
-        assertThrows(RuntimeException.class, () -> carsService.listCarForSale(1L, 60000L, "Bearer token"));
+        assertThrows(RuntimeException.class, () -> carsService.listCarForSale(1L, 60000L));
     }
 
     @Test
-    void testPurchaseCar_ShouldThrowExceptionIfNotForSale() throws ParseException, JsonProcessingException {
+    void testPurchaseCar_ShouldThrowExceptionIfNotForSale(){
         Long carId = 1L;
-        String token = "Bearer mockToken";
         Car car = new Car();
         car.setId(carId);
         car.setForSale(false);
@@ -138,20 +137,20 @@ class CarsServiceTest {
         when(carRepository.findById(carId)).thenReturn(Optional.of(car));
 
         CarsService spyService = Mockito.spy(carsService);
-        doReturn("mockUsername").when(spyService).getUsernameFromToken(anyString());
+        doReturn("mockUsername").when(spyService).getUsernameFromToken();
 
-        assertThrows(RuntimeException.class, () -> spyService.purchaseCar(carId, token));
+        assertThrows(RuntimeException.class, () -> spyService.purchaseCar(carId));
     }
 
     @Test
     void testPurchaseCar_Success() throws ParseException, JsonProcessingException {
         car.setForSale(true);
-        doReturn("buyer").when(carsService).getUsernameFromToken(mockToken);
+        doReturn("buyer").when(carsService).getUsernameFromToken();
 
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
         when(userService.getUser("buyer")).thenReturn(buyer);
 
-        carsService.purchaseCar(1L, mockToken);
+        carsService.purchaseCar(1L);
 
         assertFalse(car.isForSale());
         assertTrue(car.getOwners().contains(buyer));
@@ -164,19 +163,19 @@ class CarsServiceTest {
     }
 
     @Test
-    void testPurchaseCar_ShouldThrowExceptionIfInsufficientBalance() throws ParseException, JsonProcessingException {
+    void testPurchaseCar_ShouldThrowExceptionIfInsufficientBalance() {
         buyer.setBalanceInCents(0L);
-        doReturn("buyer").when(carsService).getUsernameFromToken(mockToken);
+        doReturn("buyer").when(carsService).getUsernameFromToken();
 
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
         when(userService.getUser("buyer")).thenReturn(buyer);
 
-        assertThrows(RuntimeException.class, () -> carsService.purchaseCar(1L, mockToken));
+        assertThrows(RuntimeException.class, () -> carsService.purchaseCar(1L));
     }
 
     @Test
     void testGetCars_ShouldReturnPagedResults() {
-        CarDTO carDTO = carsService.mapCar(car);
+        CarDTO carDTO = MapCar.mapCar(car);
         PageImpl<CarDTO> carPage = new PageImpl<>(Collections.singletonList(carDTO));
         when(carRepository.findCars(PageRequest.of(0, 10))).thenReturn(carPage);
 

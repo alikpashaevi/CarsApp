@@ -2,6 +2,7 @@ package pleasework.kvira72.cars;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import pleasework.kvira72.cars.components.FuelEfficiencyCalculator;
 
 public class FuelEfficiencyCalculatorTest {
 

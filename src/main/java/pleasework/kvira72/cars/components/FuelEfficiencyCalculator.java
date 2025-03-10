@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars;
+package pleasework.kvira72.cars.components;
 
 import org.springframework.stereotype.Component;
 

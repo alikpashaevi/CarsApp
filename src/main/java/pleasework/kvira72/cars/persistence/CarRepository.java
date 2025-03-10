@@ -1,4 +1,4 @@
-package pleasework.kvira72.cars.entity;
+package pleasework.kvira72.cars.persistence;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

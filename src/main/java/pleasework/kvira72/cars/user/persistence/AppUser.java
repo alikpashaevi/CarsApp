@@ -4,7 +4,7 @@ package pleasework.kvira72.cars.user.persistence;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import pleasework.kvira72.cars.entity.Car;
+import pleasework.kvira72.cars.persistence.Car;
 
 import java.util.HashSet;
 import java.util.Set;
